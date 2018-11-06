@@ -8,6 +8,7 @@ const Product = require('../models/product');
 router.get('/', (req, res, next) => {
   Order.find()
     .select('product quantity _id')
+    .populate('product', '_id name price')
     .exec()
     .then(result => {
       res.status(200).json(result);
@@ -44,6 +45,7 @@ router.get('/:orderId', (req, res, next) => {
   const id = req.params.orderId;
   Order.findById(id)
     .select('_id product quantity')
+    .populate('product')
     .exec()
     .then(result => {
       result ? res.status(200).json(result) : res.status(404).json({ message: 'Not found' });
@@ -56,13 +58,13 @@ router.get('/:orderId', (req, res, next) => {
 router.delete('/:orderId', (req, res, next) => {
   const id = req.params.orderId;
   Order.remove({_id: id})
-  .exec()
-  .then(result => {
-    result.n != 0 ? res.status(200).json(result) : res.status(404).json({ message: 'Not found' });
-  })
-  .catch(error => {
-    res.status(500).json({error});
-  })
+    .exec()
+    .then(result => {
+      result.n != 0 ? res.status(200).json(result) : res.status(404).json({ message: 'Not found' });
+    })
+    .catch(error => {
+      res.status(500).json({error});
+    })
 })
 
 
