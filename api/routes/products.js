@@ -70,25 +70,26 @@ router.get('/:productId', (req, res, next) => {
   Product.findById(id)
     .exec()
     .then(result => {
-      const response = {
-        count: result.length,
-        product: {
-          name: result.name,
-          price: result.price,
-          _id: result._id,
-          request: {
-            type: 'GET',
-            url: `http://${process.env.DOMAIN}:${process.env.PORT}/products/${result._id}`
+      if (result) {
+        const response = {
+          count: result.length,
+          product: {
+            name: result.name,
+            price: result.price,
+            _id: result._id,
+            request: {
+              type: 'GET',
+              url: `http://${process.env.DOMAIN}:${process.env.PORT}/products/${result._id}`
+            }
           }
         }
-      }
-      if (result) {
         res.status(200).json(response);
       } else {
         res.status(404).json({ error: 'Not found' });
       }
     })
     .catch(error => {
+      console.log(error)
       res.status(500).json({
         error
       });
