@@ -6,10 +6,25 @@ const Product = require('../models/product');
 
 router.get('/', (req, res, next) => {
   Product.find()
+    .select('name price _id')
     .exec()
     .then(result => {
+      const response = {
+        count: result.length,
+        products: result.map(product => {
+          return {
+            name: product.name,
+            price: product.price,
+            _id: product._id,
+            request: {
+              type: 'GET',
+              url: `http://${process.env.DOMAIN}:${process.env.PORT}/products/${product._id}`
+            }
+          }
+        })
+      };
       if (result.length > 0) {
-        res.status(200).json(result);
+        res.status(200).json(response);
       } else {
         res.status(404).json({ error: 'Not found' });
       }
@@ -32,7 +47,15 @@ router.post('/', (req, res, next) => {
     .then(result => {
       res.status(201).json({
         message: 'success',
-        resultObject: result
+        resultObject: {
+          name: result.name,
+          price: result.price,
+          _id: result._id,
+          request: {
+            type: 'GET',
+            url: `http://${process.env.DOMAIN}:${process.env.PORT}/products/${result._id}`
+          }
+        }
       });
     })
     .catch(err => {
@@ -47,8 +70,20 @@ router.get('/:productId', (req, res, next) => {
   Product.findById(id)
     .exec()
     .then(result => {
+      const response = {
+        count: result.length,
+        product: {
+          name: result.name,
+          price: result.price,
+          _id: result._id,
+          request: {
+            type: 'GET',
+            url: `http://${process.env.DOMAIN}:${process.env.PORT}/products/${result._id}`
+          }
+        }
+      }
       if (result) {
-        res.status(200).json(result);
+        res.status(200).json(response);
       } else {
         res.status(404).json({ error: 'Not found' });
       }
