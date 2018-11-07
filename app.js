@@ -12,7 +12,7 @@ mongoose.connect(
   `mongodb+srv://${process.env.DB_USER}:${encodeURIComponent(process.env.DB_PASSWORD)}@rest-test-hqs9m.mongodb.net/test?retryWrites=true`,
   { useNewUrlParser: true }
 )
-
+app.use('/uploads', express.static('uploads'));
 app.use(morgan('dev'));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());

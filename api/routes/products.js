@@ -35,7 +35,7 @@ const Product = require('../models/product');
 
 router.get('/', (req, res, next) => {
   Product.find()
-    .select('name price _id')
+    .select('name price _id productImage')
     .exec()
     .then(result => {
       const response = {
@@ -45,6 +45,7 @@ router.get('/', (req, res, next) => {
             name: product.name,
             price: product.price,
             _id: product._id,
+            productImage: product.productImage,
             request: {
               type: 'GET',
               url: `http://${process.env.DOMAIN}:${process.env.PORT}/products/${product._id}`
@@ -70,7 +71,8 @@ router.post('/', upload.single('productImage'), (req, res, next) => {
   const product = new Product({
     _id: new mongoose.Types.ObjectId(),
     name: req.body.name,
-    price: req.body.price
+    price: req.body.price,
+    productImage: req.file.path.replace('\\', '/')
   })
   product
     .save()
@@ -80,6 +82,7 @@ router.post('/', upload.single('productImage'), (req, res, next) => {
         resultObject: {
           name: result.name,
           price: result.price,
+          productImage: result.productImage,
           _id: result._id,
           request: {
             type: 'GET',
@@ -106,6 +109,7 @@ router.get('/:productId', (req, res, next) => {
           product: {
             name: result.name,
             price: result.price,
+            productImage: result.productImage,
             _id: result._id,
             request: {
               type: 'GET',
