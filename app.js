@@ -4,6 +4,7 @@ const app = express();
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+const checkAuth = require('./api/middleware/auth');
 
 const productRoutes = require('./api/routes/products');
 const orderRoutes = require('./api/routes/orders');
@@ -30,7 +31,7 @@ app.use((req, res, next) => {
 }); 
 
 app.use('/products', productRoutes);
-app.use('/orders', orderRoutes);
+app.use('/orders', checkAuth, orderRoutes);
 app.use('/', authRoutes);
 
 // Error handling
