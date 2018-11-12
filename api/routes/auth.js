@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const router = express.Router();
 
 const User = require('../models/user');
@@ -42,6 +43,51 @@ router.post('/signup', (req, res, next) => {
       };
     });
 });
+
+router.post('/signin', (req, res, next) => {
+  User.find({ email: req.body.email })
+    .exec()
+    .then(result => {
+      if (result.length > 0) {
+        bcrypt.compare(req.body.password, result[0].password, (err, response) => {
+          if (err) {
+            return res.status(401).json({
+              message: 'Wrong credentials!'
+            });
+          } else if (response) {
+            const token = jwt.sign(
+              {
+                email: result[0].email,
+                userId: result[0]._id,
+              }, 
+              process.env.JWT_KEY, 
+              {
+                expiresIn: '1h'
+              }
+            );
+            return res.status(200).json({
+              message: 'Auth succeed!',
+              token
+            });
+          } else {
+            return res.status(401).json({
+              message: 'Wrong credentials!'
+            });
+          }
+        });
+      } else {
+        return res.status(401).json({
+          message: 'Wrong credentials!'
+        });
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      res.status(500).json({
+        error: err
+      });
+    });
+})
 
 
 module.exports = router;
